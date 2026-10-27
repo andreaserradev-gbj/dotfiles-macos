@@ -1,0 +1,114 @@
+name: CI
+
+# Three checks, each one a defect that actually happened in this repo's
+# history, so none of them is speculative:
+#
+#   shellcheck  — install.sh's backup scan once moved files out of the repo,
+#                 and preflight once died on an unset variable under `set -u`.
+#   stylua      — two Lua files were committed without a final newline.
+#   brewfile    — `cls` shipped referring to a binary the Brewfile never
+#                 installed.
+#
+# Runs on ubuntu because none of these tools needs macOS: the scripts only
+# shell out to brew/stow on the machine, and the checks here read files.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Pinned, not ubuntu-latest. The -latest label migrates between major OS
+# versions over 1-2 months (ubuntu-latest moved to 26.04 starting 2026-10-19),
+# which changes apt package versions and image contents under the same YAML.
+# Pinning is what GitHub's own runner-images docs recommend to avoid that, and
+# it also silences the migration notice every job currently emits.
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install shellcheck and stylua
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+          curl -fsSL -o /tmp/stylua.zip \
+            https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip
+          unzip -q -o /tmp/stylua.zip -d /tmp/stylua
+          sudo install -m755 /tmp/stylua/stylua /usr/local/bin/stylua
+
+      - name: shellcheck
+        run: shellcheck install.sh scripts/*.sh
+
+      - name: stylua
+        run: stylua --check nvim/.config/nvim
+
+      - name: Lua files parse
+        run: |
+          # stylua --check only reformats; it fails on a syntax error too, so
+          # this is a second, independent parse via luac when available.
+          if command -v luac >/dev/null; then
+            find nvim/.config/nvim -name '*.lua' -print0 | xargs -0 -n1 luac -p
+          else
+            echo "luac unavailable, stylua --check covers parsing"
+          fi
+
+  # Every formulae/cask name in the Brewfile must exist upstream. Catches a
+  # typo or a removed formula before a fresh machine fails mid-install.
+  brewfile:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Every Brewfile entry resolves on Homebrew
+        run: |
+          fail=0
+          while IFS= read -r line; do
+            line="${line%%#*}"
+            kind=$(printf '%s' "$line" | awk '{print $1}')
+            name=$(printf '%s' "$line" | awk '{print $2}' | tr -d '"')
+            [ -z "$name" ] && continue
+            case "$kind" in
+              brew) url="https://formulae.brew.sh/api/formula/$name.json" ;;
+              cask) url="https://formulae.brew.sh/api/cask/$name.json" ;;
+              *) continue ;;
+            esac
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$url")
+            if [ "$code" != 200 ]; then
+              echo "MISSING $kind $name (HTTP $code)"
+              fail=1
+            fi
+          done < Brewfile
+          [ "$fail" -eq 0 ] && echo "all Brewfile entries resolve"
+
+  # The one check that needs macOS semantics: bash 3.2 is what /bin/bash is
+  # there, and these scripts run through that shebang. It must EXECUTE them,
+  # not merely parse: `bash -n` accepts bash-4-only commands like `mapfile`
+  # (valid syntax, missing builtin at runtime), so a syntax check alone would
+  # pass and the machine would fail. Tools the scripts call are stubbed.
+  bash32:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run both scripts under bash 3.2
+        run: |
+          docker run --rm -v "$PWD":/repo:ro -w /repo -e HOME=/tmp/h bash:3.2 bash -ec '
+            ln -sf /usr/local/bin/bash /bin/bash
+            mkdir -p /tmp/bin /tmp/h
+            # stubs: the scripts must not need real brew/stow/sw_vers here
+            printf "#!/bin/sh\necho \"[stub] $@\"\n" > /tmp/bin/stow
+            printf "#!/bin/sh\nexit 0\n" > /tmp/bin/brew
+            chmod +x /tmp/bin/*
+            export PATH=/tmp/bin:/usr/local/bin:/usr/bin:/bin
+
+            echo "--- install.sh"
+            ./install.sh --no-brew
+            echo "--- preflight-macos.sh"
+            ./scripts/preflight-macos.sh > /tmp/pf.txt
+            head -5 /tmp/pf.txt
+            echo "bash 3.2 executed both scripts"
+          '

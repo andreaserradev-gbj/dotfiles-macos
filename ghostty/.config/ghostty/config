@@ -1,0 +1,28 @@
+# Ghostty — terminal for macOS.
+#
+# Ghostty reads this file on macOS too: XDG paths are checked on every platform
+# (the ~/Library/Application Support one is loaded afterwards and would win,
+# but nothing writes it here). Keeping the config under ~/.config means the same
+# file works if this repo is ever used on a Linux box.
+#
+# Theme is built in; `ghostty +list-themes | grep Catppuccin` lists the family.
+
+theme = "Catppuccin Mocha"
+
+font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+
+# Matches the padding used on the NixOS hosts, so the grid looks the same.
+window-padding-x = 8
+window-padding-y = 8
+
+# Option as Alt. Without this, macOS sends composed characters for Option
+# combinations and every Alt-based binding in herdr, nvim and zsh (alt+b/f word
+# movement) is unreachable. `left` is the usual choice; switch to `right` if you
+# type accented characters with the left Option key.
+macos-option-as-alt = left
+
+# Tabs in the titlebar: reclaims the titlebar row and matches the old WezTerm
+# setup's `hide_tab_bar_if_only_one_tab` intent. `transparent` is the
+# alternative — same titlebar, but it shows the window background through it.
+macos-titlebar-style = tabs

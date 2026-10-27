@@ -1,0 +1,39 @@
+# herdr — terminal workspace manager for coding agents.
+#
+# Copied from the NixOS config (dotfiles-nix config/herdr/config.toml) minus the
+# reviewr plugin binding, which needs a plugin installed from Nix.
+#
+# herdr resolves its config dir as $XDG_CONFIG_HOME/herdr, falling back to
+# ~/.config/herdr on macOS (upstream src/config/io.rs), so this file needs no
+# macOS-specific location.
+#
+# No quit key exists: prefix+q detaches, and stopping the server is
+# `herdr server stop`. Validate after editing: `herdr config check`.
+onboarding = false
+
+# Two phone-home knobs, both curl-based:
+# - `version_check` asks the releases API on launch and announces upgrades.
+#   Off here; upgrade with `brew upgrade herdr`.
+# - `manifest_check` refreshes agent-detection manifests. Left ON: the agent
+#   registry is the reason to run herdr at all.
+[update]
+version_check = false
+
+[theme]
+name = "catppuccin"
+
+# Each action's trailing prefix+* entry is herdr's own default, re-declared for
+# keyboards without Alt — a configured list REPLACES that action's default.
+# The bare singles are arrows, not alt+hjkl: nvim claims alt+h, and a bare
+# alt-letter here would swallow it before it reached the pane.
+[keys]
+focus_pane_left  = ["prefix+alt+h", "alt+left", "prefix+h"]
+focus_pane_down  = ["prefix+alt+j", "alt+down", "prefix+j"]
+focus_pane_up    = ["prefix+alt+k", "alt+up", "prefix+k"]
+focus_pane_right = ["prefix+alt+l", "alt+right", "prefix+l"]
+split_vertical   = ["alt+n", "prefix+v"]
+split_horizontal = ["alt+d", "prefix+minus"]
+zoom             = ["alt+f", "prefix+z"]
+new_tab          = ["alt+t", "prefix+c"]
+next_tab         = ["alt+shift+right", "prefix+n"]
+previous_tab     = ["alt+shift+left", "prefix+p"]

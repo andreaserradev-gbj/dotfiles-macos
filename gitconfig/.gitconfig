@@ -1,0 +1,31 @@
+# Git identity.
+#
+# Deliberately NOT here: user.email. The address to commit with is a per-site
+# decision, and a dotfiles repo is the wrong place to hardcode it — set it
+# per repo:
+#
+#   git config --global user.name  "Your Name"
+#   git config user.email "you@example.com"        # per repo, when it differs
+#
+# Everything below is identity-free.
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[core]
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	dark = true
+	line-numbers = true
+	syntax-theme = "Catppuccin Mocha"
+	hyperlinks = true
+
+[merge]
+	conflictStyle = zdiff3

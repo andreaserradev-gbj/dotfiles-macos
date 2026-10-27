@@ -1,0 +1,2 @@
+# bat: use the Catppuccin Mocha theme shipped in ./themes/.
+--theme="Catppuccin Mocha"

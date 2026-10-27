@@ -1,0 +1,10 @@
+# lazygit, with delta as its diff renderer.
+#
+# SCHEMA: `git.diffRenderers` is the key lazygit >= 0.64 accepts; older versions
+# spell it `git.pagers`, and recent ones reject the stale name outright. Verify
+# with `lazygit --version` after a bump.
+git:
+  diffRenderers:
+    - type: stdinFilter
+      colorArg: always
+      command: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"

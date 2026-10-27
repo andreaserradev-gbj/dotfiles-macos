@@ -1,0 +1,33 @@
+# One indentation authority for a repo that mixes shell, Lua, TOML/YAML and
+# Markdown. Lua is 2 spaces because stylua.toml (which nvim uses at runtime)
+# says so; shell is 4 to match the Bash it actually parses.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.sh]
+indent_style = space
+indent_size = 4
+
+[*.lua]
+indent_style = space
+indent_size = 2
+
+[*.{yml,yaml,toml}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+# Markdown uses two trailing spaces as a hard line break; stripping them
+# silently changes rendered output.
+trim_trailing_whitespace = false
+
+[*.tmTheme]
+# Vendored verbatim from the upstream Catppuccin theme (and byte-identical to
+# the copy in dotfiles-nix). Do not reformat: a "missing" final newline is
+# upstream's, and touching it would break that correspondence.
+insert_final_newline = false

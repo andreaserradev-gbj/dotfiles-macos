@@ -1,0 +1,9 @@
+**/.claude/settings.local.json
+
+# Local, uncommitted working notes: PRDs, checkpoints, session logs. Kept out
+# of every repo by default, so a project's tracked docs stay deliberate.
+.dev/
+.dev-archive/
+
+# nix-direnv caches the evaluated environment here, per project
+.direnv/
