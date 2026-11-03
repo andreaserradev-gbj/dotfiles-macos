@@ -26,3 +26,10 @@ macos-option-as-alt = left
 # setup's `hide_tab_bar_if_only_one_tab` intent. `transparent` is the
 # alternative — same titlebar, but it shows the window background through it.
 macos-titlebar-style = tabs
+
+# Option+Left/Right: Ghostty's macOS defaults rewrite them to esc:b / esc:f
+# (word jumps), so herdr saw Alt+B / Alt+F, and Alt+Right zoomed the pane
+# instead of focusing right. Unbound, they reach herdr as real Alt+arrows;
+# zsh maps the same sequences to word movement (15-keybindings.zsh).
+keybind = alt+arrow_left=unbind
+keybind = alt+arrow_right=unbind
