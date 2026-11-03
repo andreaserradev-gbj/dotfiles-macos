@@ -77,6 +77,7 @@ eza:eza
 bat:bat
 fastfetch:fastfetch
 nvm:nvm
+uv:uv
 neovim:nvim
 tree-sitter-cli:tree-sitter
 gcc:gcc
@@ -85,6 +86,7 @@ herdr:herdr
 prettier:prettier
 stylua:stylua
 shfmt:shfmt
+shellcheck:shellcheck
 bash-language-server:bash-language-server
 vscode-langservers-extracted:vscode-json-language-server
 yaml-language-server:yaml-language-server

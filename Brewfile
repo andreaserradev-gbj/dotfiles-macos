@@ -31,6 +31,9 @@ brew "fastfetch" # `cls` alias in 30-aliases.zsh
 # what this config's .nvmrc hook expects.)
 brew "nvm"
 
+# --- python -----------------------------------------------------------------
+brew "uv" # also provides uvx
+
 # --- editor and terminal ----------------------------------------------------
 brew "neovim"
 brew "tree-sitter-cli" # nvim-treesitter needs the CLI on 0.12+
@@ -42,6 +45,7 @@ brew "herdr"
 brew "prettier"
 brew "stylua"
 brew "shfmt"
+brew "shellcheck" # linter; CI runs it on every script
 
 # LSP servers, resolved from PATH because nvim ships with Mason disabled
 # (lua/plugins/lsp.lua). Every name here is a launcher nvim-lspconfig probes:

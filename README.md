@@ -56,7 +56,7 @@ shell/git/gh config.
 | `claude` | `~/.claude/statusline.sh` | Claude Code status line: project, git, model + effort, context %, cost. `settings.json` is not stowed (Claude Code rewrites it); `install.sh` adds the `statusLine` key when missing |
 
 Tooling comes from the `Brewfile`: stow, git/delta/gh/jq/ripgrep/fd/wget,
-starship, fzf, zoxide, eza, bat, fastfetch, nvm, neovim, tree-sitter-cli,
+starship, fzf, zoxide, eza, bat, fastfetch, nvm, uv, neovim, tree-sitter-cli,
 lazygit, herdr, the formatters and LSP servers Neovim expects on `PATH`, plus
 the Ghostty and JetBrains Mono Nerd Font casks.
 
