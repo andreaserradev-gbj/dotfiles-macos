@@ -46,7 +46,9 @@ brew "uv" # also provides uvx
 # keychain:
 #   { "cliPluginsExtraDirs": ["/opt/homebrew/lib/docker/cli-plugins"],
 #     "credsStore": "osxkeychain" }
-# Start the VM: colima start --vm-type vz --vz-rosetta --cpu 4 --memory 8
+# Start the VM: colima start --vm-type vz --vz-rosetta --cpu 4 --memory 4
+# Keep --memory small: the vz VM never hands touched RAM back to macOS, so it
+# drifts up to its cap; `colima stop` is the only way to reclaim it.
 brew "colima"
 brew "docker"
 brew "docker-compose"
