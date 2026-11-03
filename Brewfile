@@ -39,6 +39,20 @@ brew "nvm" # cmd: nvm — a shell function; preflight checks nvm.sh by path
 # --- python -----------------------------------------------------------------
 brew "uv" # also provides uvx
 
+# --- containers -------------------------------------------------------------
+# Colima runs the Docker engine in a Lima VM; the docker CLI is the client.
+# Not stowed: ~/.docker/config.json (docker login and colima write to it).
+# Create it once so the CLI finds the brew plugins and keeps logins in the
+# keychain:
+#   { "cliPluginsExtraDirs": ["/opt/homebrew/lib/docker/cli-plugins"],
+#     "credsStore": "osxkeychain" }
+# Start the VM: colima start --vm-type vz --vz-rosetta --cpu 4 --memory 8
+brew "colima"
+brew "docker"
+brew "docker-compose"
+brew "docker-buildx"
+brew "docker-credential-helper" # cmd: docker-credential-osxkeychain
+
 # --- editor and terminal ----------------------------------------------------
 brew "neovim" # cmd: nvim
 brew "tree-sitter-cli" # cmd: tree-sitter — nvim-treesitter needs the CLI on 0.12+
