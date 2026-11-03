@@ -8,9 +8,32 @@
 # rather than generated at shell start because pnpm usually lives in an
 # nvm-managed Node (often only the one a project's .nvmrc selects), so it is
 # not on PATH when the shell starts. Changes from upstream: return quietly when
-# pnpm is not on PATH, and drop its stderr so errors don't garble the prompt.
+# pnpm is not on PATH, drop its stderr so errors don't garble the prompt, and
+# complete `pnpm run <TAB>` locally (below).
 
 (( $+commands[pnpm] )) || return 1
+
+# `pnpm run <TAB>` / `pnpm run-script <TAB>`: the completion-server only lists
+# scripts once a prefix is typed (an empty word gets the command list), so read
+# them from the nearest package.json instead, with each script's command as the
+# description. Only for the script-name position right after run; anything else
+# (flags, `--filter x run`) still goes to pnpm.
+if (( CURRENT == 3 )) && [[ $words[2] == (run|run-script) ]] && (( $+commands[jq] )); then
+    local dir=$PWD
+    while [[ $dir != / && ! -f $dir/package.json ]]; do dir=${dir:h}; done
+    if [[ -f $dir/package.json ]]; then
+        local -a scripts
+        # _describe splits "name:description" on the first unescaped colon,
+        # so colons inside script names (build:credit-limits) are escaped.
+        scripts=(${(f)"$(jq -r '.scripts // {} | to_entries[]
+            | "\(.key | gsub(":"; "\\:")):\(.value | gsub("\n"; " "))"' \
+            "$dir/package.json" 2>/dev/null)"})
+        if (( $#scripts )); then
+            _describe 'script' scripts
+            return
+        fi
+    fi
+fi
 
 local -a reply
 local si=$IFS
