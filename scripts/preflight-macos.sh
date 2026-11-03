@@ -116,6 +116,43 @@ for pair in $TOOLS; do
 done
 info "$present present, $missing missing"
 
+head_ "claude code (native installer, not Brewfile)"
+# Deliberately not a Brewfile cask: the native install self-updates and the
+# cask lags behind it; having both puts two `claude` binaries on PATH.
+if command -v claude >/dev/null 2>&1; then
+    cv=$(claude --version 2>/dev/null | head -1)
+    ok "claude ${cv:-installed} at $(command -v claude)"
+    n=$(type -ap claude 2>/dev/null | sort -u | wc -l | tr -d ' ')
+    if [ "$n" -gt 1 ]; then
+        warn "$n different claude binaries on PATH — PATH order decides which runs:"
+        type -ap claude | sort -u | sed 's/^/          /'
+    fi
+    if command -v brew >/dev/null 2>&1 && brew list --cask claude-code >/dev/null 2>&1; then
+        warn "claude-code cask installed alongside — remove one (brew uninstall --cask claude-code)"
+    fi
+else
+    info "claude not installed — curl -fsSL https://claude.ai/install.sh | bash"
+    info "  the status line is stowed regardless and picked up on first launch"
+fi
+CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+if [ ! -f "$CLAUDE_SETTINGS" ]; then
+    info "no $CLAUDE_SETTINGS — install.sh will create it with statusLine"
+elif ! command -v jq >/dev/null 2>&1; then
+    info "jq missing — cannot inspect $CLAUDE_SETTINGS"
+elif ! jq -e . "$CLAUDE_SETTINGS" >/dev/null 2>&1; then
+    warn "$CLAUDE_SETTINGS is not valid JSON — install.sh will not touch it"
+else
+    slcmd=$(jq -r '.statusLine.command // empty' "$CLAUDE_SETTINGS")
+    # The quoted '~' is intentional: it matches the literal string stored in
+    # settings.json (Claude Code expands it), not a path on this machine.
+    # shellcheck disable=SC2088
+    case "$slcmd" in
+        '') info "statusLine not set — install.sh will add it" ;;
+        '~/.claude/statusline.sh'|"$HOME/.claude/statusline.sh") ok "statusLine points at ~/.claude/statusline.sh" ;;
+        *) warn "statusLine is set to '$slcmd' — install.sh keeps it; the repo's script will be unused" ;;
+    esac
+fi
+
 head_ "macOS apps"
 if [ "$IS_MAC" -eq 1 ]; then
     # Ghostty's config keys need >= 1.2.3 for config.ghostty naming; the
@@ -152,7 +189,7 @@ fi
 
 head_ "existing dotfiles that install.sh would back up"
 REPO=$(cd "$(dirname "$0")/.." && pwd)
-PACKAGES="zsh ghostty herdr starship bat lazygit gitconfig git nvim"
+PACKAGES="zsh ghostty herdr starship bat lazygit gitconfig git nvim claude"
 found=0
 for pkg in $PACKAGES; do
     [ -d "$REPO/$pkg" ] || continue

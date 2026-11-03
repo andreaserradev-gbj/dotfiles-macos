@@ -53,6 +53,7 @@ shell/git/gh config.
 | `gitconfig` | `~/.gitconfig` | **no `user.email`** — see below |
 | `git` | `~/.config/git/ignore` | global ignore |
 | `nvim` | `~/.config/nvim` | LazyVim; plugins bootstrap themselves on first launch |
+| `claude` | `~/.claude/statusline.sh` | Claude Code status line: project, git, model + effort, context %, cost. `settings.json` is not stowed (Claude Code rewrites it); `install.sh` adds the `statusLine` key when missing |
 
 Tooling comes from the `Brewfile`: stow, git/delta/gh/jq/ripgrep/fd/wget,
 starship, fzf, zoxide, eza, bat, fastfetch, nvm, neovim, tree-sitter-cli,

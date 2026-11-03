@@ -41,7 +41,7 @@ jobs:
           sudo install -m755 /tmp/stylua/stylua /usr/local/bin/stylua
 
       - name: shellcheck
-        run: shellcheck install.sh scripts/*.sh
+        run: shellcheck install.sh scripts/*.sh claude/.claude/statusline.sh
 
       - name: stylua
         run: stylua --check nvim/.config/nvim

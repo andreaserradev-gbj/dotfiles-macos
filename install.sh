@@ -22,6 +22,7 @@ PACKAGES=(
     gitconfig
     git
     nvim
+    claude
 )
 
 DO_BREW=1
@@ -115,6 +116,38 @@ STOW_OPTS=(-R -v --no-folding -t "$HOME")
 echo ">>> stow ${PACKAGES[*]}"
 cd "$DOTFILES_DIR"
 stow "${STOW_OPTS[@]}" "${PACKAGES[@]}"
+
+# --- 4. Claude Code status line ---------------------------------------------
+# ~/.claude/settings.json is NOT stowed: Claude Code rewrites it (theme, model,
+# permissions), and a symlink would turn every one of those writes into a diff
+# in this repo. Instead, merge the one key the `claude` package needs.
+#
+# Only adds statusLine when the key is ABSENT, so a hand-tuned status line is
+# never overwritten and re-running is a no-op. Claude Code itself is not
+# required: the file is created if missing and read on its first launch.
+CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+STATUSLINE='{"type": "command", "command": "~/.claude/statusline.sh", "padding": 0}'
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "!! jq not found — skipping statusLine merge into $CLAUDE_SETTINGS" >&2
+elif [ -f "$CLAUDE_SETTINGS" ] && ! jq -e . "$CLAUDE_SETTINGS" >/dev/null 2>&1; then
+    echo "!! $CLAUDE_SETTINGS is not valid JSON — leaving it alone" >&2
+elif [ -f "$CLAUDE_SETTINGS" ] && jq -e 'has("statusLine")' "$CLAUDE_SETTINGS" >/dev/null; then
+    echo ">>> claude: statusLine already set in $CLAUDE_SETTINGS, leaving it"
+else
+    echo ">>> claude: adding statusLine to $CLAUDE_SETTINGS"
+    if [ "$DRY_RUN" -eq 0 ]; then
+        mkdir -p "$(dirname "$CLAUDE_SETTINGS")"
+        [ -f "$CLAUDE_SETTINGS" ] || echo '{}' > "$CLAUDE_SETTINGS"
+        # jq cannot edit in place. Write to a temp file, then `cat >` it back
+        # so the original keeps its inode and permissions (0600 if Claude
+        # Code created it) instead of inheriting mktemp's.
+        tmp=$(mktemp "$CLAUDE_SETTINGS.XXXXXX")
+        jq --argjson sl "$STATUSLINE" '. + {statusLine: $sl}' "$CLAUDE_SETTINGS" > "$tmp"
+        cat "$tmp" > "$CLAUDE_SETTINGS"
+        rm -f "$tmp"
+    fi
+fi
 
 echo
 if [ "$DRY_RUN" -eq 1 ]; then
