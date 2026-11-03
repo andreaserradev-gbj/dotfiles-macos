@@ -50,6 +50,10 @@ brew "uv" # also provides uvx
 # Start the VM: colima start --vm-type vz --vz-rosetta --cpu 4 --memory 4
 # Keep --memory small: the vz VM never hands touched RAM back to macOS, so it
 # drifts up to its cap; `colima stop` is the only way to reclaim it.
+# Start at login: `brew services start colima`. Trap: launchd does not see the
+# XDG_CONFIG_HOME set in 10-environment.zsh, so the service would use ~/.colima
+# while the shell uses ~/.config/colima — two VMs. `mkdir ~/.colima` BEFORE the
+# first `colima start` so both pick ~/.colima (it wins when it exists).
 brew "colima"
 brew "docker"
 brew "docker-compose"
