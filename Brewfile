@@ -90,4 +90,5 @@ brew "marksman"
 brew "vtsls"
 
 cask "ghostty"
+cask "visual-studio-code"
 cask "font-jetbrains-mono-nerd-font"
