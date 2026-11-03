@@ -1,0 +1,24 @@
+#compdef pnpm
+#
+# pnpm completion, autoloaded from fpath (50-completions.zsh adds this dir).
+#
+# Adapted from `pnpm completion zsh` (pnpm 10): pnpm answers every <TAB> itself
+# through `pnpm completion-server`, so subcommands, flags, package.json scripts
+# and --filter targets stay current with whatever pnpm is on PATH. Vendored
+# rather than generated at shell start because pnpm usually lives in an
+# nvm-managed Node (often only the one a project's .nvmrc selects), so it is
+# not on PATH when the shell starts. Changes from upstream: return quietly when
+# pnpm is not on PATH, and drop its stderr so errors don't garble the prompt.
+
+(( $+commands[pnpm] )) || return 1
+
+local -a reply
+local si=$IFS
+IFS=$'\n' reply=($(COMP_CWORD="$((CURRENT-1))" COMP_LINE="$BUFFER" COMP_POINT="$CURSOR" SHELL=zsh pnpm completion-server -- "${words[@]}" 2>/dev/null))
+IFS=$si
+
+if [[ $reply == __tabtab_complete_files__ ]]; then
+    _files
+else
+    _describe 'values' reply
+fi

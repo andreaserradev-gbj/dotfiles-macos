@@ -14,6 +14,10 @@
 # -d -D -i -u -C -w; an unknown letter silently ENDS the loop, so `compinit -U
 # -d file` ignores the dumpfile and writes ~/.zcompdump. Do not add -U.
 mkdir -p "$XDG_CACHE_HOME/zsh"
+# Completion functions shipped by this repo (_pnpm, …). On fpath before
+# compinit, which only registers the #compdef files it can see. Not sourced by
+# .zshrc: it loads ~/.config/zsh/*.zsh only, never subdirectories.
+fpath=("$XDG_CONFIG_HOME/zsh/completions" $fpath)
 autoload -Uz compinit
 compinit -i -d "$XDG_CACHE_HOME/zsh/zcompdump"
 
