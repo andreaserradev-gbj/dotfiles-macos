@@ -223,18 +223,43 @@ done
 #    Keep that file OUT of any repository.
 PATTERNS="${SITE_PATTERNS_FILE:-$HOME/.config/dotfiles-macos/site-patterns}"
 if [ -f "$PATTERNS" ]; then
+    # Two places, two meanings:
+    #   * the REPO (every file git could commit: tracked + untracked, minus
+    #     ignored ones like CLAUDE.local.md) — a hit here is a leak waiting
+    #     to be committed, so it is a WARN;
+    #   * $HOME config — a hit in a regular, non-stowed file is the intended
+    #     home for site-specific setup (a local drop-in), so it is only listed.
     site=0
     while IFS= read -r pat; do
         case "$pat" in ''|'#'*) continue ;; esac
+        hits=$(cd "$REPO" && git ls-files -z --cached --others --exclude-standard 2>/dev/null \
+                | xargs -0 grep -IliE "$pat" 2>/dev/null | head -5)
+        if [ -n "$hits" ]; then
+            site=1
+            warn "site pattern '$pat' INSIDE THE REPO (would be published):"
+            printf '%s\n' "$hits" | sed 's/^/          /'
+        fi
         hits=$(grep -rIliE "$pat" "$HOME/.zshrc" "$HOME/.config/zsh" "$HOME/.gitconfig" \
                 "$HOME/.config/gh" 2>/dev/null | head -5)
         if [ -n "$hits" ]; then
-            site=1
-            warn "site pattern '$pat' in:"
-            printf '%s\n' "$hits" | sed 's/^/          /'
+            printf '%s\n' "$hits" | while IFS= read -r f; do
+                if [ -L "$f" ]; then
+                    warn "site pattern '$pat' in stowed file $f (it lives in the repo)"
+                else
+                    info "local-only: $f (not stowed — fine)"
+                fi
+            done
         fi
     done < "$PATTERNS"
-    [ "$site" -eq 0 ] && ok "no site-specific references matching $PATTERNS"
+    [ "$site" -eq 0 ] && ok "repo is free of patterns from $PATTERNS"
+    # Hooks are per clone and never committed: a fresh clone has none.
+    for h in pre-commit commit-msg; do
+        if [ "$(readlink "$REPO/.git/hooks/$h" 2>/dev/null)" = ../../scripts/site-guard.sh ]; then
+            ok "$h hook runs scripts/site-guard.sh"
+        else
+            warn "$h hook not installed — ln -sf ../../scripts/site-guard.sh .git/hooks/$h"
+        fi
+    done
 else
     info "no pattern file at $PATTERNS — skipping the site-vocabulary check"
     info "  create it to list names that must not travel (one regex per line)"

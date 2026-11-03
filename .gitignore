@@ -1,2 +1,5 @@
 # Machine-local leftovers.
 .DS_Store
+
+# Per-machine notes for Claude Code (site-specific; see CLAUDE.md).
+CLAUDE.local.md

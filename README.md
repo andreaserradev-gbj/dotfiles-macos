@@ -97,6 +97,30 @@ are destroyed on upgrade unless `NVM_DIR` points somewhere stable.
 `10-environment.zsh` sets `NVM_DIR=~/.nvm` for that reason. Alternative: `fnm` or
 `mise` — but the `.nvmrc` hook in `40-functions.zsh` is written against nvm.
 
+**Site-specific config never enters the repo.** This repo is public, so
+anything tied to one employer or machine (registry auth, internal hosts, cloud
+profiles, work identity) lives in local files that stow does not manage:
+
+- **zsh:** `.zshrc` sources every `~/.config/zsh/*.zsh`, so a regular file
+  dropped there (e.g. `45-<site>-<topic>.zsh`) loads next to the stowed modules
+  without the repo knowing it exists. `--no-folding` keeps that directory real.
+- **git:** the stowed file is `~/.gitconfig`; git also reads
+  `~/.config/git/config`, which is not in the repo. Put a site identity there,
+  and set this repo's own `user.email` to your GitHub noreply address.
+- **notes for Claude Code:** `CLAUDE.md` (committed) holds the rules;
+  `CLAUDE.local.md` (git-ignored) holds what exists on this machine.
+
+Two checks enforce it, both driven by a private pattern file outside the repo,
+`~/.config/dotfiles-macos/site-patterns` (one regex per line):
+`preflight-macos.sh` warns when a pattern appears in any committable file, and
+`scripts/site-guard.sh` refuses a commit whose author, staged lines or message
+match. Hooks are per clone, so install it after cloning:
+
+```sh
+ln -sf ../../scripts/site-guard.sh .git/hooks/pre-commit
+ln -sf ../../scripts/site-guard.sh .git/hooks/commit-msg
+```
+
 ## Verifying a fresh install
 
 `-i` matters: `.zshrc` is only read by interactive shells, so `zsh -l -c` would
