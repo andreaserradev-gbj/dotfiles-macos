@@ -39,6 +39,10 @@ brew "nvm" # cmd: nvm — a shell function; preflight checks nvm.sh by path
 
 # --- python -----------------------------------------------------------------
 brew "uv" # also provides uvx
+# Some projects pin their tooling to pyenv + poetry instead of uv. pyenv works
+# without shell init here: the projects call ~/.pyenv/versions/<v>/bin/python.
+brew "pyenv"
+brew "poetry"
 
 # --- containers -------------------------------------------------------------
 # Colima runs the Docker engine in a Lima VM; the docker CLI is the client.
