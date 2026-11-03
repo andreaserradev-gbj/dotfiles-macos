@@ -19,6 +19,8 @@ info() { printf '  ..    %s\n' "$1"; }
 # head_ accepts an optional title; "${1-}" because `set -u` rejects a bare $1.
 head_() { printf '\n== %s\n' "${1-}"; }
 
+REPO=$(cd "$(dirname "$0")/.." && pwd)
+
 IS_MAC=0
 [ "$(uname -s)" = Darwin ] && IS_MAC=1
 
@@ -60,40 +62,24 @@ else
 fi
 
 head_ "tools (Brewfile order)"
-# name:command — the command is what the config actually invokes.
-TOOLS="
-stow:stow
-git:git
-git-delta:delta
-gh:gh
-jq:jq
-ripgrep:rg
-fd:fd
-wget:wget
-starship:starship
-fzf:fzf
-zoxide:zoxide
-eza:eza
-bat:bat
-fastfetch:fastfetch
-nvm:nvm
-uv:uv
-neovim:nvim
-tree-sitter-cli:tree-sitter
-gcc:gcc
-lazygit:lazygit
-herdr:herdr
-prettier:prettier
-stylua:stylua
-shfmt:shfmt
-shellcheck:shellcheck
-bash-language-server:bash-language-server
-vscode-langservers-extracted:vscode-json-language-server
-yaml-language-server:yaml-language-server
-lua-language-server:lua-language-server
-marksman:marksman
-vtsls:vtsls
-"
+# The Brewfile is the only tool list. Each `brew "<formula>"` is checked as a
+# command of the same name, unless its comment says `cmd: <command>`, or
+# `cmd: -` for a formula with nothing to run. Casks are apps, not commands.
+TOOLS=""
+while IFS= read -r line; do
+    case "$line" in "brew \""*) ;; *) continue ;; esac
+    name=${line#brew \"}
+    name=${name%%\"*}
+    cmd=$name
+    case "$line" in
+        *"# cmd: "*)
+            cmd=${line#*"# cmd: "}
+            cmd=${cmd%%[[:space:]]*}
+            ;;
+    esac
+    [ "$cmd" = - ] && continue
+    TOOLS="$TOOLS $name:$cmd"
+done < "$REPO/Brewfile"
 missing=0
 present=0
 for pair in $TOOLS; do
@@ -190,8 +176,13 @@ if [ -d "$HOME/Library/Application Support/com.mitchellh.ghostty" ]; then
 fi
 
 head_ "existing dotfiles that install.sh would back up"
-REPO=$(cd "$(dirname "$0")/.." && pwd)
-PACKAGES="zsh ghostty herdr starship bat lazygit gitconfig git nvim claude"
+# Same list install.sh stows: ./packages, one name per line, # comments.
+PACKAGES=""
+while IFS= read -r line; do
+    line=${line%%#*}
+    line=${line//[[:space:]]/}
+    [ -n "$line" ] && PACKAGES="$PACKAGES $line"
+done < "$REPO/packages"
 found=0
 for pkg in $PACKAGES; do
     [ -d "$REPO/$pkg" ] || continue

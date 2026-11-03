@@ -1,23 +1,28 @@
 # Fundamental tooling for a macOS dev machine, installed by install.sh
 # (`brew bundle --file Brewfile`). Deliberately no site-specific taps and no
 # host-only CLIs: everything here is a tool you would install by hand anyway.
+#
+# This is also the ONLY tool list: scripts/preflight-macos.sh reads it to
+# report what is missing. It checks for a command named like the formula;
+# when they differ, say so in the comment with `# cmd: <command>`, or
+# `# cmd: -` for a formula that installs nothing to run (sourced plugins).
 
 # --- the symlink layer -------------------------------------------------------
 brew "stow"
 
 # --- base CLI ---------------------------------------------------------------
 brew "git"
-brew "git-delta" # pager for git and lazygit
+brew "git-delta" # cmd: delta — pager for git and lazygit
 brew "gh"
 brew "jq"
-brew "ripgrep" # nvim pickers + fzf
+brew "ripgrep" # cmd: rg — nvim pickers + fzf
 brew "fd"
 brew "wget"
 
 # --- shell ------------------------------------------------------------------
 brew "starship"
-brew "zsh-autosuggestions"
-brew "zsh-syntax-highlighting"
+brew "zsh-autosuggestions"     # cmd: - (sourced, no binary)
+brew "zsh-syntax-highlighting" # cmd: - (sourced, no binary)
 brew "fzf" # also installs bin/fzf-preview.sh, used by 60-fzf.zsh
 brew "zoxide"
 brew "eza"
@@ -29,14 +34,14 @@ brew "fastfetch" # `cls` alias in 30-aliases.zsh
 # upgrades if NVM_DIR points at a stable dir; 10-environment.zsh sets
 # NVM_DIR=~/.nvm for exactly that reason. (Alternative: fnm/mise, but nvm is
 # what this config's .nvmrc hook expects.)
-brew "nvm"
+brew "nvm" # cmd: nvm — a shell function; preflight checks nvm.sh by path
 
 # --- python -----------------------------------------------------------------
 brew "uv" # also provides uvx
 
 # --- editor and terminal ----------------------------------------------------
-brew "neovim"
-brew "tree-sitter-cli" # nvim-treesitter needs the CLI on 0.12+
+brew "neovim" # cmd: nvim
+brew "tree-sitter-cli" # cmd: tree-sitter — nvim-treesitter needs the CLI on 0.12+
 brew "gcc"             # nvim-treesitter builds parsers at runtime
 brew "lazygit"
 brew "herdr"
@@ -53,7 +58,7 @@ brew "shellcheck" # linter; CI runs it on every script
 #   vscode-langservers-extracted, yamlls -> yaml-language-server,
 #   lua_ls -> lua-language-server, marksman, vtsls (owns its own node).
 brew "bash-language-server"
-brew "vscode-langservers-extracted"
+brew "vscode-langservers-extracted" # cmd: vscode-json-language-server
 brew "yaml-language-server"
 brew "lua-language-server"
 brew "marksman"

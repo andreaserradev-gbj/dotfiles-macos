@@ -12,18 +12,19 @@
 set -e
 
 DOTFILES_DIR=$(cd "$(dirname "$0")" && pwd)
-PACKAGES=(
-    zsh
-    ghostty
-    herdr
-    starship
-    bat
-    lazygit
-    gitconfig
-    git
-    nvim
-    claude
-)
+# The package list lives in ./packages, shared with preflight-macos.sh.
+# Plain while-read, not mapfile: /bin/bash on macOS is 3.2.
+PACKAGES=()
+while IFS= read -r line; do
+    line=${line%%#*}
+    line=${line//[[:space:]]/}
+    [ -z "$line" ] && continue
+    if [ ! -d "$DOTFILES_DIR/$line" ]; then
+        echo "!! packages lists '$line' but there is no such directory" >&2
+        exit 1
+    fi
+    PACKAGES+=("$line")
+done < "$DOTFILES_DIR/packages"
 
 DO_BREW=1
 DRY_RUN=0

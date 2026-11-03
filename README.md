@@ -42,6 +42,11 @@ shell/git/gh config.
 
 ## What is in here
 
+Two files are the single source of truth, used by both `install.sh` and the
+preflight: `packages` (which directories get stowed) and the `Brewfile` (which
+tools are installed and checked; tag a formula `# cmd: <command>` when its
+command has a different name, `# cmd: -` when it has none).
+
 | package | lands at | notes |
 | --- | --- | --- |
 | `zsh` | `~/.zshenv`, `~/.zshrc`, `~/.config/zsh/*.zsh` | no framework; numbered modules are sourced in order |

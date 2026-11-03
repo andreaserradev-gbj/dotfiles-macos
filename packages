@@ -1,0 +1,16 @@
+# Stow packages, one per line, in stow order. Each name is a top-level
+# directory of this repo laid out for GNU Stow (<pkg>/.config/app -> ~/.config/app).
+#
+# This is the ONLY package list: install.sh stows exactly these, and
+# scripts/preflight-macos.sh scans exactly these for files it would back up.
+# A directory not listed here is never stowed.
+zsh
+ghostty
+herdr
+starship
+bat
+lazygit
+gitconfig
+git
+nvim
+claude
