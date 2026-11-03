@@ -18,6 +18,7 @@ brew "jq"
 brew "ripgrep" # cmd: rg — nvim pickers + fzf
 brew "fd"
 brew "wget"
+brew "btop" # resource monitor (memory, CPU, processes)
 
 # --- shell ------------------------------------------------------------------
 brew "starship"
