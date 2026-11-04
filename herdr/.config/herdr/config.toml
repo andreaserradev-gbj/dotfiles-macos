@@ -37,3 +37,27 @@ zoom             = ["alt+z", "prefix+z"]
 new_tab          = ["alt+t", "prefix+c"]
 next_tab         = ["alt+shift+right", "prefix+n"]
 previous_tab     = ["alt+shift+left", "prefix+p"]
+
+# Shell-out bindings. HERDR_ACTIVE_PANE_CWD is the focused pane's directory.
+# `type = "popup"` floats over the tab without touching the layout and takes
+# all input (Esc included) until the command exits; `type = "shell"` runs it
+# in the background. `description` labels the binding in prefix+? help.
+# Keys avoid herdr's defaults (prefix+g is goto, prefix+o
+# open_notification_target): config check does not flag an overlap, so one
+# binding would silently hide the other.
+
+# prefix+y: lazygit in the focused pane's repo.
+[[keys.command]]
+key = "prefix+y"
+type = "popup"
+command = 'cd "$HERDR_ACTIVE_PANE_CWD" && lazygit'
+description = "lazygit in the pane's directory"
+width = "90%"
+height = "90%"
+
+# prefix+f: open the focused pane's directory in Finder.
+[[keys.command]]
+key = "prefix+f"
+type = "shell"
+command = 'open "$HERDR_ACTIVE_PANE_CWD"'
+description = "open the pane's directory in Finder"
