@@ -3,6 +3,13 @@
 # SCHEMA: `git.diffRenderers` is the key lazygit >= 0.64 accepts; older versions
 # spell it `git.pagers`, and recent ones reject the stale name outright. Verify
 # with `lazygit --version` after a bump.
+#
+# delta renders side-by-side (set in ~/.gitconfig's [delta]), so the diff
+# panel gets the room: a narrower side column and no command log (`@` shows it
+# for the session). For a full-screen diff: `0` to focus it, then `+` twice.
+gui:
+  sidePanelWidth: 0.2
+  showCommandLog: false
 git:
   diffRenderers:
     - type: stdinFilter
