@@ -24,6 +24,10 @@
 	navigate = true
 	dark = true
 	line-numbers = true
+	# Also applies inside lazygit: delta reads this section, and lazygit sets
+	# COLUMNS to the diff panel's width. `git add -p` is unaffected —
+	# --color-only (interactive.diffFilter) never changes the layout.
+	side-by-side = true
 	syntax-theme = "Catppuccin Mocha"
 	hyperlinks = true
 
