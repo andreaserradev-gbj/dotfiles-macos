@@ -9,13 +9,14 @@ alias lz='lazygit'
 alias hd='herdr'
 alias cls='clear && fastfetch'
 
-# eza — `l` for everyday listing, `lg*` for git-aware trees, `ll` for the
-# long form with sizes.
+# eza — `l` for everyday listing, `lg*` for git-aware trees, `ll` for the long
+# form with sizes, `la` for that plus hidden files (`-A`, not `-a`: no `.`/`..`).
 alias l='eza --icons'
 alias lg='eza --tree --level=1 --icons --git --git-ignore'
 alias lg2='eza --tree --level=2 --icons --git --git-ignore'
 alias lg3='eza --tree --level=3 --icons --git --git-ignore'
 alias ll='eza -lg --icons'
+alias la='eza -lAg --icons'
 
 # bat as a pager-friendly cat. --paging=never because the terminal already
 # scrolls, and the theme resolves from bat's own config.
